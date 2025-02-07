@@ -51,6 +51,8 @@ flutter run
 ```
 This will build and deploy the app on the selected emulator or device.
 
+Note that this step will only start up the app's UI. If you would like to also utilize the food scanning feature, please ensure that you have also started up the [EcoEats server](https://github.com/plasmapotatos/EcoEats-Server) and that it is running on the same LAN as the app. Apologizes for the hackiness of this solution but we didn't want to expose a port from our local server to the public, and the same functionality can be achieved as long as you VPN to the same network as your server, for example through [OpenVPN](https://openvpn.net/)'s custom certificate system.
+
 ## Contributing
 Feel free to submit pull requests or open issues to improve EcoEats!
 
