@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 //TODO: Add a click sound effect :D
 Future<void> captureAndSendImage(
@@ -21,64 +23,154 @@ Future<void> captureAndSendImage(
     print("Image captured: ${image.path}");
 
     // Convert image to bytes
-    final bytes = await image.readAsBytes();
+    final Uint8List bytes = await image.readAsBytes();
 
-    // Create the request
-    final uri = Uri.parse(
-        'http://your-server-url.com/upload'); // Replace with your server's URL
-    final request = http.MultipartRequest('POST', uri)
-      ..files.add(
-        http.MultipartFile.fromBytes(
-          'image', // The name of the file field on your server
-          bytes,
-          filename: 'image.jpg', // You can name the file anything
-        ),
+    // Decode image
+    final img.Image capturedImage = img.decodeImage(bytes)!;
+
+    // Rotate image 90 deg counterclockwise
+    final img.Image rotatedImage = img.copyRotate(capturedImage, angle: 360);
+
+    // Encode rotated image to bytes
+    Uint8List rotatedBytes = Uint8List.fromList(img.encodeJpg(rotatedImage));
+
+    // Encode bytes to base64
+    String base64Image = base64Encode(rotatedBytes);
+
+    // Prepare JSON payload
+    final Map<String, dynamic> payload = {
+      "base64_image": base64Image,
+    };
+
+    // Define server URL
+    final Uri uri = Uri.parse(
+        'http://192.168.1.40:5001/analyze_image'); // Ensure server is running
+
+    print("Sending image to server...");
+
+    // Send HTTP POST request
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(payload),
+    );
+
+    void _showResponseBottomSheet(Map<String, dynamic> responseData) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return Container(
+            padding: EdgeInsets.all(16),
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Item: ${responseData['item']}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text('Category: ${responseData['category']}'),
+                SizedBox(height: 8),
+                Text(
+                    'Carbon Emissions: ${responseData['carbon emissions']} kg CO2-eq/kg'),
+                SizedBox(height: 16),
+                Text(
+                  'Alternatives:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: responseData['alternatives'].length,
+                    itemBuilder: (context, index) {
+                      final alternative = responseData['alternatives'][index];
+                      return ListTile(
+                        title: Text(alternative['item']),
+                        subtitle: Text(
+                            '${alternative['carbon emissions']} kg CO2-eq/kg - ${alternative['reason']}'),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
+    }
+
+    if (response.statusCode == 200) {
+      // Parse server response
+      print('Response: ${response.body}');
+      final Map<String, dynamic> responseData =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      _showResponseBottomSheet(responseData);
+    } else {
+      print('Failed to upload image: ${response.statusCode}');
+    }
 
     // Send the request
     //final response = await request.send();
-    final response = {
-      'statusCode': 200, // HTTP status code
-      'body': {
-        'item': 'Apple',
-        'alternatives': [
-          {
-            'name': 'Pear',
-            'info': 'Pears are sweet and rich in fiber.',
-            'imageUrl':
-                'https://plus.unsplash.com/premium_photo-1672976699507-521b6bb1f0cb?q=80&w=1848&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          },
-          {
-            'name': 'Banana',
-            'info': 'Bananas are rich in potassium and great for energy.',
-            'imageUrl':
-                'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFuYW5hfGVufDB8fDB8fHww',
-          },
-          {
-            'name': 'Orange',
-            'info': 'Oranges are high in vitamin C and refreshing.',
-            'imageUrl':
-                'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8b3JhbmdlfGVufDB8fDB8fHww',
-          },
-        ],
-      },
-      'headers': {
-        'Content-Type': 'application/json',
-      },
-    };
+    // final response = {
+    //   'statusCode': 200, // HTTP status code
+    //   'body': {
+    //     'item': 'Apple',
+    //     'alternatives': [
+    //       {
+    //         'name': 'Pear',
+    //         'info': 'Pears are sweet and rich in fiber.',
+    //         'imageUrl':
+    //             'https://plus.unsplash.com/premium_photo-1672976699507-521b6bb1f0cb?q=80&w=1848&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    //       },
+    //       {
+    //         'name': 'Banana',
+    //         'info': 'Bananas are rich in potassium and great for energy.',
+    //         'imageUrl':
+    //             'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFuYW5hfGVufDB8fDB8fHww',
+    //       },
+    //       {
+    //         'name': 'Orange',
+    //         'info': 'Oranges are high in vitamin C and refreshing.',
+    //         'imageUrl':
+    //             'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8b3JhbmdlfGVufDB8fDB8fHww',
+    //       },
+    //     ],
+    //   },
+    //   'headers': {
+    //     'Content-Type': 'application/json',
+    //   },
+    // };
 
-    // if (response.statusCode == 200) {
-    //   // Parse server response
-    //   final responseData = await response.stream.bytesToString();
-    //   final serverResponse = jsonDecode(responseData);
+    // if (response['statusCode'] == 200) {
+    //   final Map<String, dynamic> body =
+    //       response['body'] as Map<String, dynamic>; // Extract the response body
 
-    //   // Show response in a popup
+    //   // Show the response in a popup
     //   showDialog(
     //     context: context,
     //     builder: (BuildContext context) {
     //       return AlertDialog(
-    //         title: Text('Server Response'),
-    //         content: Text(serverResponse['message'] ?? 'No message'),
+    //         title: Text('Detected Item: ${body["item"]}'),
+    //         content: SingleChildScrollView(
+    //           child: Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: (body["alternatives"] as List).map((alt) {
+    //               return ListTile(
+    //                 leading: alt['imageUrl'] != null
+    //                     ? Image.network(
+    //                         alt['imageUrl'],
+    //                         width: 50,
+    //                         height: 50,
+    //                         fit: BoxFit.cover,
+    //                       )
+    //                     : Icon(Icons.image),
+    //                 title: Text(alt['name']),
+    //                 subtitle: Text(alt['info']),
+    //               );
+    //             }).toList(),
+    //           ),
+    //         ),
     //         actions: [
     //           TextButton(
     //             onPressed: () => Navigator.of(context).pop(),
@@ -89,67 +181,25 @@ Future<void> captureAndSendImage(
     //     },
     //   );
     // } else {
-    //   print('Failed to upload image: ${response.statusCode}');
+    //   // Handle non-200 status codes
+    //   print('Error: ${response['statusCode']}');
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: Text('Error'),
+    //         content: Text(
+    //             'Failed to process the image. Status Code: ${response['statusCode']}'),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () => Navigator.of(context).pop(),
+    //             child: Text('OK'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
     // }
-
-    if (response['statusCode'] == 200) {
-      final Map<String, dynamic> body =
-          response['body'] as Map<String, dynamic>; // Extract the response body
-
-      // Show the response in a popup
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Detected Item: ${body["item"]}'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: (body["alternatives"] as List).map((alt) {
-                  return ListTile(
-                    leading: alt['imageUrl'] != null
-                        ? Image.network(
-                            alt['imageUrl'],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                        : Icon(Icons.image),
-                    title: Text(alt['name']),
-                    subtitle: Text(alt['info']),
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      // Handle non-200 status codes
-      print('Error: ${response['statusCode']}');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text(
-                'Failed to process the image. Status Code: ${response['statusCode']}'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
   } catch (e) {
     print('Error capturing or uploading image: $e');
   }
