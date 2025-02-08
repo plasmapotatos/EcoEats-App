@@ -6,7 +6,9 @@
 
 ## Getting Started
 
-Follow these steps to set up and run EcoEats on your local machine.
+Follow these steps to set up and run EcoEats on your local machine. 
+Here's a demo of the current prototype and explanation.
+[Here](https://drive.google.com/file/d/1VKf-BGwldbylcnRCxek1cZlQV4w-Oeft/view?usp=sharing)'s a short explanation of our code structure and organization.
 
 ### Prerequisites
 Ensure you have the following installed:
