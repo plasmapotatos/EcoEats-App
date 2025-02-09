@@ -6,6 +6,56 @@ import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+Future<http.Response?> sendPostRequest(
+    BuildContext context, Uri uri, Map<String, dynamic> payload) async {
+  try {
+    // Show the loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing the dialog
+      builder: (BuildContext context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    // Send HTTP POST request
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(payload),
+    );
+
+    // Close the loading dialog
+    Navigator.of(context).pop();
+
+    return response; // Return the response object
+  } catch (e) {
+    // Close the loading dialog if there's an exception
+    Navigator.of(context).pop();
+
+    // Show an error dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text("Failed to send request: $e"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+
+    return null; // Return null if an error occurs
+  }
+}
+
 //TODO: Add a click sound effect :D
 Future<void> captureAndSendImage(
     BuildContext context, CameraController controller) async {
@@ -49,11 +99,11 @@ Future<void> captureAndSendImage(
     print("Sending image to server...");
 
     // Send HTTP POST request
-    final response = await http.post(
-      uri,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(payload),
-    );
+    final response = await sendPostRequest(context, uri, payload);
+
+    if (response == null) {
+      return;
+    }
 
     void _showResponseBottomSheet(Map<String, dynamic> responseData) {
       showModalBottomSheet(
@@ -109,99 +159,25 @@ Future<void> captureAndSendImage(
     } else {
       print('Failed to upload image: ${response.statusCode}');
     }
-
-    // Send the request
-    //final response = await request.send();
-    // final response = {
-    //   'statusCode': 200, // HTTP status code
-    //   'body': {
-    //     'item': 'Apple',
-    //     'alternatives': [
-    //       {
-    //         'name': 'Pear',
-    //         'info': 'Pears are sweet and rich in fiber.',
-    //         'imageUrl':
-    //             'https://plus.unsplash.com/premium_photo-1672976699507-521b6bb1f0cb?q=80&w=1848&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    //       },
-    //       {
-    //         'name': 'Banana',
-    //         'info': 'Bananas are rich in potassium and great for energy.',
-    //         'imageUrl':
-    //             'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFuYW5hfGVufDB8fDB8fHww',
-    //       },
-    //       {
-    //         'name': 'Orange',
-    //         'info': 'Oranges are high in vitamin C and refreshing.',
-    //         'imageUrl':
-    //             'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8b3JhbmdlfGVufDB8fDB8fHww',
-    //       },
-    //     ],
-    //   },
-    //   'headers': {
-    //     'Content-Type': 'application/json',
-    //   },
-    // };
-
-    // if (response['statusCode'] == 200) {
-    //   final Map<String, dynamic> body =
-    //       response['body'] as Map<String, dynamic>; // Extract the response body
-
-    //   // Show the response in a popup
-    //   showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertDialog(
-    //         title: Text('Detected Item: ${body["item"]}'),
-    //         content: SingleChildScrollView(
-    //           child: Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: (body["alternatives"] as List).map((alt) {
-    //               return ListTile(
-    //                 leading: alt['imageUrl'] != null
-    //                     ? Image.network(
-    //                         alt['imageUrl'],
-    //                         width: 50,
-    //                         height: 50,
-    //                         fit: BoxFit.cover,
-    //                       )
-    //                     : Icon(Icons.image),
-    //                 title: Text(alt['name']),
-    //                 subtitle: Text(alt['info']),
-    //               );
-    //             }).toList(),
-    //           ),
-    //         ),
-    //         actions: [
-    //           TextButton(
-    //             onPressed: () => Navigator.of(context).pop(),
-    //             child: Text('OK'),
-    //           ),
-    //         ],
-    //       );
-    //     },
-    //   );
-    // } else {
-    //   // Handle non-200 status codes
-    //   print('Error: ${response['statusCode']}');
-    //   showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertDialog(
-    //         title: Text('Error'),
-    //         content: Text(
-    //             'Failed to process the image. Status Code: ${response['statusCode']}'),
-    //         actions: [
-    //           TextButton(
-    //             onPressed: () => Navigator.of(context).pop(),
-    //             child: Text('OK'),
-    //           ),
-    //         ],
-    //       );
-    //     },
-    //   );
-    // }
   } catch (e) {
     print('Error capturing or uploading image: $e');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Error capturing or uploading image: $e'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -215,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<CameraDescription> cameras;
   int selectedIndex = 0;
   bool isFlashOn = false;
+  bool isCapturing = false;
 
   late PageController _pageController;
 
@@ -347,8 +324,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Capture Button
                     GestureDetector(
-                      onTap: () =>
-                          captureAndSendImage(context, _cameraController),
+                      onTap: isCapturing
+                          ? null
+                          : () async {
+                              setState(() {
+                                isCapturing = true;
+                              });
+
+                              await captureAndSendImage(
+                                  context, _cameraController);
+
+                              setState(() {
+                                isCapturing = false;
+                              });
+                            },
                       child: Container(
                         width: 70,
                         height: 70,
