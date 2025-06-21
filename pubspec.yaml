@@ -1,4 +1,4 @@
-name: tsa_software_dev
+name: EcoEats
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -39,6 +39,9 @@ dependencies:
   audioplayers: ^6.1.1
   image: ^4.5.2
   flutter_launcher_icons: ^0.14.3
+  provider: ^6.1.5
+  shared_preferences: ^2.5.3
+  lottie: ^3.3.1
 
 flutter_icons:
   android: "launcher_icon"
@@ -68,7 +71,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - lib/assets/animations/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
