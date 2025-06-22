@@ -9,6 +9,8 @@ import 'package:EcoEats/widgets/capture_controls.dart';
 import 'package:EcoEats/services/camera_service.dart';
 import 'package:EcoEats/screens/items_screen.dart';
 
+import 'loading_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   bool isFlashOn = false;
   bool isCapturing = false;
+  bool _cameraInitialized = false;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final List<String> categories = [
@@ -44,8 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> initializeCamera() async {
     _cameraController = await CameraService.initializeCamera();
-    setState(() {});
-  }
+    setState(() {
+      _cameraInitialized = true;
+    });  }
 
   @override
   void dispose() {
@@ -56,6 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_cameraInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       body: Stack(
         children: [
@@ -76,6 +86,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() => isFlashOn = !isFlashOn);
                 },
                 onCapture: () async {
+                  try {
+                    final XFile image = await _cameraController.takePicture();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => LoadingScreen(
+                          message: "Analyzing image...",
+                          animationAsset: 'lib/assets/animations/generate_recipes.gif',
+                          isGif: true,
+                          onComplete: (context) async {
+                            await CameraService.captureAndSendImage(context, _cameraController, image: image);
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const ItemsScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    print("Capture error: $e");
+                  }
+                },
+                onItemsPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ItemsScreen()),
                   );
@@ -87,4 +120,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 }
