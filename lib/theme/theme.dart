@@ -9,7 +9,7 @@ class EcoEatsTheme {
   static ThemeData get light => ThemeData(
     primarySwatch: Colors.green,
     scaffoldBackgroundColor: Colors.white,
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
