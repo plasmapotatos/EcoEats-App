@@ -23,7 +23,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await Future.delayed(Duration(seconds: 2)); // optional delay
       await widget.onComplete(context);
     });
   }
