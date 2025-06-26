@@ -202,135 +202,138 @@ class _ItemsScreenState extends State<ItemsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.swap_horiz),
-            title: const Text(
-              'Generate Alternatives',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // adds breathing room
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.swap_horiz),
+              title: const Text(
+                'Generate Alternatives',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
-            ),
-            onTap: () async {
-              Navigator.pop(context);
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => LoadingScreen(
-                  message: "Finding alternatives...",
-                  animationAsset: 'lib/assets/animations/generate_alternatives.gif',
-                  isGif: true,
-                  onComplete: (context) async {
-                    final foodItems = context.read<FoodItemProvider>().items;
-                    final altProvider = Provider.of<AlternativesProvider>(context, listen: false);
-                    if (useMockData) {
-                      altProvider.setAlternativesForFood("Chicken", [
-                        Alternative(
-                          name: "Tofu",
-                          justification: "Plant-based protein with much lower emissions",
-                          co2: 1.2,
-                          category: "Proteins",
-                        ),
-                        Alternative(
-                          name: "Lentils",
-                          justification: "High protein and very low carbon footprint",
-                          co2: 0.9,
-                          category: "Proteins",
-                        ),
-                        Alternative(
-                          name: "Tempeh",
-                          justification: "Fermented soy product, nutritious and eco-friendly",
-                          co2: 1.1,
-                          category: "Proteins",
-                        ),
-                        Alternative(
-                          name: "Seitan",
-                          justification: "Wheat gluten-based protein alternative",
-                          co2: 1.0,
-                          category: "Proteins",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Vegetables",
-                        ),
-                      ]);
-                      altProvider.setAlternativesForFood("Doritos", [
-                        Alternative(
-                          name: "Tofu",
-                          justification: "Plant-based protein with much lower emissions",
-                          co2: 1.2,
-                          category: "Vegetables",
-                        ),
-                        Alternative(
-                          name: "Lentils",
-                          justification: "High protein and very low carbon footprint",
-                          co2: 0.9,
-                          category: "Fruits",
-                        ),
-                        Alternative(
-                          name: "Tempeh",
-                          justification: "Fermented soy product, nutritious and eco-friendly",
-                          co2: 1.1,
-                          category: "Grains",
-                        ),
-                        Alternative(
-                          name: "Seitan",
-                          justification: "Wheat gluten-based protein alternative",
-                          co2: 1.0,
-                          category: "Proteins",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Dairy",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Seafood",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Sweets",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Beverages",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Snacks",
-                        ),
-                        Alternative(
-                          name: "Mushrooms",
-                          justification: "Rich in nutrients and low in emissions",
-                          co2: 0.8,
-                          category: "Other",
-                        ),
-                      ]);
-                    } else {
-                      final result = await ApiService.fetchAlternatives(
-                          context, foodItems);
-                      print("Result: ");
-                      print(result);
-                      if (result != null) {
-                        for (String item in foodItems) {
-                          altProvider.setAlternativesForFood(
-                              item, result[item] ?? []);
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => LoadingScreen(
+                    message: "Finding alternatives...",
+                    animationAsset: 'lib/assets/animations/generate_alternatives.gif',
+                    isGif: true,
+                    onComplete: (context) async {
+                      final foodItems = Provider.of<FoodItemProvider>(context, listen: false);
+                      final altProvider = Provider.of<AlternativesProvider>(context, listen: false);
+                      if (useMockData) {
+                        altProvider.setAlternativesForFood("Chicken", [
+                          Alternative(
+                            name: "Tofu",
+                            justification: "Plant-based protein with much lower emissions",
+                            co2: 1.2,
+                            category: "Proteins",
+                          ),
+                          Alternative(
+                            name: "Lentils",
+                            justification: "High protein and very low carbon footprint",
+                            co2: 0.9,
+                            category: "Proteins",
+                          ),
+                          Alternative(
+                            name: "Tempeh",
+                            justification: "Fermented soy product, nutritious and eco-friendly",
+                            co2: 1.1,
+                            category: "Proteins",
+                          ),
+                          Alternative(
+                            name: "Seitan",
+                            justification: "Wheat gluten-based protein alternative",
+                            co2: 1.0,
+                            category: "Proteins",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Vegetables",
+                          ),
+                        ]);
+                        altProvider.setAlternativesForFood("Doritos", [
+                          Alternative(
+                            name: "Tofu",
+                            justification: "Plant-based protein with much lower emissions",
+                            co2: 1.2,
+                            category: "Vegetables",
+                          ),
+                          Alternative(
+                            name: "Lentils",
+                            justification: "High protein and very low carbon footprint",
+                            co2: 0.9,
+                            category: "Fruits",
+                          ),
+                          Alternative(
+                            name: "Tempeh",
+                            justification: "Fermented soy product, nutritious and eco-friendly",
+                            co2: 1.1,
+                            category: "Grains",
+                          ),
+                          Alternative(
+                            name: "Seitan",
+                            justification: "Wheat gluten-based protein alternative",
+                            co2: 1.0,
+                            category: "Proteins",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Dairy",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Seafood",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Sweets",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Beverages",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Snacks",
+                          ),
+                          Alternative(
+                            name: "Mushrooms",
+                            justification: "Rich in nutrients and low in emissions",
+                            co2: 0.8,
+                            category: "Other",
+                          ),
+                        ]);
+                      } else {
+                        print("Fetching alternatives");
+                        final result = await ApiService.fetchAlternatives(
+                            context, foodItems.items);
+                        print("Result: ");
+                        print(result);
+                        if (result != null) {
+                          for (String item in foodItems.items) {
+                            altProvider.setAlternativesForFood(
+                                item, result[item] ?? []);
+                          }
                         }
                       }
-                    }
 
 
 
@@ -338,182 +341,84 @@ class _ItemsScreenState extends State<ItemsScreen> {
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const AlternativesScreen(),
                       ));
-                    // } else {
-                    //   Navigator.of(context).pop(); // Close loading screen
-                    //   ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(content: Text("Failed to fetch alternatives")),
-                    //   );
-                    // }
-                    // altProvider.setAlternativesForFood("Chicken", [
-                    //   Alternative(
-                    //     name: "Tofu",
-                    //     justification: "Plant-based protein with much lower emissions",
-                    //     co2: 1.2,
-                    //     category: "Proteins",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Lentils",
-                    //     justification: "High protein and very low carbon footprint",
-                    //     co2: 0.9,
-                    //     category: "Proteins",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Tempeh",
-                    //     justification: "Fermented soy product, nutritious and eco-friendly",
-                    //     co2: 1.1,
-                    //     category: "Proteins",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Seitan",
-                    //     justification: "Wheat gluten-based protein alternative",
-                    //     co2: 1.0,
-                    //     category: "Proteins",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Vegetables",
-                    //   ),
-                    // ]);
-                    // altProvider.setAlternativesForFood("Doritos", [
-                    //   Alternative(
-                    //     name: "Tofu",
-                    //     justification: "Plant-based protein with much lower emissions",
-                    //     co2: 1.2,
-                    //     category: "Vegetables",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Lentils",
-                    //     justification: "High protein and very low carbon footprint",
-                    //     co2: 0.9,
-                    //     category: "Fruits",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Tempeh",
-                    //     justification: "Fermented soy product, nutritious and eco-friendly",
-                    //     co2: 1.1,
-                    //     category: "Grains",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Seitan",
-                    //     justification: "Wheat gluten-based protein alternative",
-                    //     co2: 1.0,
-                    //     category: "Proteins",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Dairy",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Seafood",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Sweets",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Beverages",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Snacks",
-                    //   ),
-                    //   Alternative(
-                    //     name: "Mushrooms",
-                    //     justification: "Rich in nutrients and low in emissions",
-                    //     co2: 0.8,
-                    //     category: "Other",
-                    //   ),
-                    // ]);
-                  },
-                ),
-              ));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.receipt),
-            title: const Text(
-              'Generate Recipe',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+                    },
+                  ),
+                ));
+              },
             ),
-            onTap: () async {
-              Navigator.pop(context);
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => LoadingScreen(
-                  message: "Generating recipe...",
-                  animationAsset: 'lib/assets/animations/generate_recipes.gif',
-                  isGif: true,
-                  onComplete: (context) async {
-                    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(Icons.receipt),
+              title: const Text(
+                'Generate Recipe',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => LoadingScreen(
+                    message: "Generating recipe...",
+                    animationAsset: 'lib/assets/animations/generate_recipes.gif',
+                    isGif: true,
+                    onComplete: (context) async {
+                      final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
 
-                    if (useMockData) {
-                      recipeProvider.setRecipe(
-                        Recipe(
-                          title: "Miso Soup",
-                          imageBase64: "", // No image in mock
-                          ingredients: [
-                            "dashi",
-                            "stock",
-                            "hot water",
-                            "miso",
-                            "firm tofu",
-                            "green onion"
-                          ],
-                          steps: [
-                            "Transfer dashi to a small soup pot over medium-low heat.",
-                            "Meanwhile, stir together hot water and miso until miso is dissolved.",
-                            "Pour watery miso mixture into the pot.",
-                            "Add cubed tofu.",
-                            "Bring the pot to a simmer.",
-                            "To serve, sprinkle sliced green onions and a pinch of katsuobushi on top."
-                          ],
-                        ),
-                      );
-                    } else {
-                      final ingredients = context.read<FoodItemProvider>().items.join(", ");
-                      final recipe = await ApiService.generateRecipe(
-                        context,
-                        ingredientsText: ingredients,
-                      );
-
-                      if (recipe == null) {
-                        Navigator.of(context).pop(); // Close loading
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Failed to generate recipe")),
+                      if (useMockData) {
+                        recipeProvider.setRecipe(
+                          Recipe(
+                            title: "Miso Soup",
+                            imageBase64: "", // No image in mock
+                            ingredients: [
+                              "dashi",
+                              "stock",
+                              "hot water",
+                              "miso",
+                              "firm tofu",
+                              "green onion"
+                            ],
+                            steps: [
+                              "Transfer dashi to a small soup pot over medium-low heat.",
+                              "Meanwhile, stir together hot water and miso until miso is dissolved.",
+                              "Pour watery miso mixture into the pot.",
+                              "Add cubed tofu.",
+                              "Bring the pot to a simmer.",
+                              "To serve, sprinkle sliced green onions and a pinch of katsuobushi on top."
+                            ],
+                          ),
                         );
-                        return;
+                      } else {
+                        final ingredients = context.read<FoodItemProvider>().items.join(", ");
+                        final recipe = await ApiService.generateRecipe(
+                          context,
+                          ingredientsText: ingredients,
+                        );
+
+                        if (recipe == null) {
+                          Navigator.of(context).pop(); // Close loading
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Failed to generate recipe")),
+                          );
+                          return;
+                        }
+
+                        recipeProvider.setRecipe(recipe);
                       }
 
-                      recipeProvider.setRecipe(recipe);
-                    }
-
-                    Navigator.of(context).pop(); // Close loading screen
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const RecipeScreen()),
-                    );
-                  },
-                ),
-              ));
-            },
-          ),
-        ],
-      ),
+                      Navigator.of(context).pop(); // Close loading screen
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const RecipeScreen()),
+                      );
+                    },
+                  ),
+                ));
+              },
+            ),
+          ],
+        ),
+      )
     );
   }
 }

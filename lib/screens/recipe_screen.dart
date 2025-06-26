@@ -4,6 +4,8 @@ import 'package:EcoEats/widgets/touch_up_modal.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/recipe_provider.dart';
+import '../services/api_service.dart';
+import 'loading_screen.dart';
 
 class RecipeScreen extends StatelessWidget {
   const RecipeScreen({super.key});
@@ -17,10 +19,34 @@ class RecipeScreen extends StatelessWidget {
       ),
       builder: (BuildContext context) {
         return TouchUpModal(
-          onSubmit: (feedback) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Submitted: \"$feedback\"")),
-            );
+          onSubmit: (feedback) async {
+            final recipeProvider = context.read<RecipeProvider>();
+            final recipe = recipeProvider.recipe;
+            if (recipe == null) return;
+
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => LoadingScreen(
+                message: "Improving your recipe...",
+                animationAsset: 'lib/assets/animations/generate_recipes.gif',
+                isGif: true,
+                onComplete: (context) async {
+                  final updated = await ApiService.generateRecipe(
+                    context,
+                    ingredientsText: recipe.ingredients.join(", "),
+                    previousRecipe: recipe,
+                    preferences: feedback,
+                  );
+                  Navigator.of(context).pop(); // Close loading
+                  if (updated != null) {
+                    recipeProvider.setRecipe(updated);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Failed to improve recipe")),
+                    );
+                  }
+                },
+              ),
+            ));
           },
         );
       },
@@ -69,19 +95,26 @@ class RecipeScreen extends StatelessWidget {
             children: [
               // Top row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Scrollable Title
                   Expanded(
-                    child: Text(
-                      recipe.title,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        recipe.title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        softWrap: false,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+
+                  const SizedBox(width: 12),
+
+                  // Touch Up Button
                   ElevatedButton.icon(
                     onPressed: () => _showTouchUpModal(context),
                     icon: const Icon(Icons.edit_note, color: Colors.white),
@@ -94,6 +127,8 @@ class RecipeScreen extends StatelessWidget {
                   ),
                 ],
               ),
+
+
 
               const SizedBox(height: 16),
 
