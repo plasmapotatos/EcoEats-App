@@ -7,11 +7,17 @@ class FoodGroupSlider extends StatelessWidget {
   final List<String> groups;
   final String selected;
   final Function(String) onSelect;
+  final Color? backgroundColor;
+  final Color? selectedColor;
+  final Color? textColor;
 
   const FoodGroupSlider({super.key,
     required this.groups,
     required this.selected,
     required this.onSelect,
+    this.backgroundColor,
+    this.selectedColor,
+    this.textColor,
   });
 
 

@@ -5,12 +5,16 @@ class Alternative {
   final String justification;
   final double co2;
   final String category;
+  final String group;
+  final String? description;
 
   Alternative({
     required this.name,
     required this.justification,
     required this.co2,
     required this.category,
+    this.group = "Other",
+    this.description,
   });
 
   factory Alternative.fromJson(Map<String, dynamic> json) {
@@ -18,7 +22,9 @@ class Alternative {
       name: json["Name"],
       justification: json["Justification"],
       co2: json["CO2"].toDouble(),
-      category: json["Category"],
+      category: json["Category"] ?? "Other",
+      group: json["Group"] ?? "Other",
+      description: json["Description"] ?? "Rich in nutrients and low in emissions",
     );
   }
 }

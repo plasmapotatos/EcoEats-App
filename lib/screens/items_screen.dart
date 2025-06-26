@@ -8,8 +8,6 @@ import 'package:EcoEats/screens/recipe_screen.dart';
 import 'package:EcoEats/providers/alternatives_provider.dart';
 import 'package:EcoEats/widgets/item_tile.dart';
 
-import '../services/api_service.dart';
-
 class ItemsScreen extends StatefulWidget {
   const ItemsScreen({super.key});
 
@@ -32,6 +30,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -40,43 +39,59 @@ class _ItemsScreenState extends State<ItemsScreen> {
     final items = context.watch<FoodItemProvider>().items;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFF9E1B),
       appBar: AppBar(
-        title: const Text("Your Items"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(color: Colors.white),
+        title: const Text(
+          "Your items",
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 30),
+        ),
         centerTitle: true,
-        leading: const BackButton(),
       ),
-      resizeToAvoidBottomInset: false,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: [
-            const SizedBox(height: 16),
-            // Items list
+          children: <Widget>[ // This fixes the children list error
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFF2B511E),
+                  borderRadius: BorderRadius.circular(32),
                 ),
                 child: Scrollbar(
                   controller: _scrollController,
                   thumbVisibility: true,
-                  thickness: 4,
-                  radius: const Radius.circular(4),
-                  child: Consumer<FoodItemProvider>(
-                    builder: (context, provider, _) {
-                      final items = provider.items;
-                      return items.isEmpty
-                          ? const Center(child: Text('No items added yet'))
-                          : ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return ItemTile(
-                            item: items[index],
-                            onRemove: () => provider.removeItem(index),
-                          );
-                        },
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(items[index],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18)),
+                            GestureDetector(
+                              onTap: () => context
+                                  .read<FoodItemProvider>()
+                                  .removeItem(index),
+                              child: const Icon(Icons.close,
+                                  color: Color(0xFF2B511E)),
+                            )
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -84,58 +99,91 @@ class _ItemsScreenState extends State<ItemsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Add item input
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'Add an item!',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    ),
-                    onSubmitted: (_) => _addItem(context),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => _addItem(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+            Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      decoration: const InputDecoration(
+                        hintText: 'kale',
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (_) => _addItem(context),
                     ),
                   ),
-                  child: const Icon(Icons.add),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Bottom submit buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.camera_alt, size: 28),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  ),
-                ),
-                const SizedBox(width: 40),
-                ElevatedButton.icon(
-                  onPressed: () => _showBottomSheet(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text("Submit"),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () => _addItem(context),
+                    child: const Icon(Icons.add_circle,
+                        color: Color(0xFF2B511E)),
+                  )
+                ],
+              ),
             ),
             const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const HomeScreen())),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2B511E),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    padding: const EdgeInsets.all(12),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: Colors.white),
+                ),
+                ElevatedButton(
+                  onPressed: () => _showBottomSheet(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2B511E),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 14),
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white),
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("Scan",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        shadows: [
+                          Shadow(
+                              color: Colors.black26,
+                              offset: Offset(2, 2),
+                              blurRadius: 2)
+                        ])),
+                Text("Submit",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        shadows: [
+                          Shadow(
+                              color: Colors.black26,
+                              offset: Offset(2, 2),
+                              blurRadius: 2)
+                        ])),
+              ],
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -153,7 +201,13 @@ class _ItemsScreenState extends State<ItemsScreen> {
         children: [
           ListTile(
             leading: const Icon(Icons.swap_horiz),
-            title: const Text('Generate Alternatives'),
+            title: const Text(
+              'Generate Alternatives',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
             onTap: () async {
               Navigator.pop(context);
               await Navigator.of(context).push(MaterialPageRoute(
@@ -165,24 +219,119 @@ class _ItemsScreenState extends State<ItemsScreen> {
                     final foodItems = context.read<FoodItemProvider>().items;
                     final altProvider = Provider.of<AlternativesProvider>(context, listen: false);
 
-                    final result = await ApiService.fetchAlternatives(context, foodItems);
-                    print("Result: ");
-                    print(result);
-                    if (result != null) {
-                      for (String item in foodItems) {
-                        altProvider.setAlternativesForFood(item, result[item] ?? []);
-                      }
+                    altProvider.setAlternativesForFood("Chicken", [
+                      Alternative(
+                        name: "Tofu",
+                        justification: "Plant-based protein with much lower emissions",
+                        co2: 1.2,
+                        category: "Proteins",
+                      ),
+                      Alternative(
+                        name: "Lentils",
+                        justification: "High protein and very low carbon footprint",
+                        co2: 0.9,
+                        category: "Proteins",
+                      ),
+                      Alternative(
+                        name: "Tempeh",
+                        justification: "Fermented soy product, nutritious and eco-friendly",
+                        co2: 1.1,
+                        category: "Proteins",
+                      ),
+                      Alternative(
+                        name: "Seitan",
+                        justification: "Wheat gluten-based protein alternative",
+                        co2: 1.0,
+                        category: "Proteins",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Vegetables",
+                      ),
+                    ]);
+                    altProvider.setAlternativesForFood("Doritos", [
+                      Alternative(
+                        name: "Tofu",
+                        justification: "Plant-based protein with much lower emissions",
+                        co2: 1.2,
+                        category: "Vegetables",
+                      ),
+                      Alternative(
+                        name: "Lentils",
+                        justification: "High protein and very low carbon footprint",
+                        co2: 0.9,
+                        category: "Fruits",
+                      ),
+                      Alternative(
+                        name: "Tempeh",
+                        justification: "Fermented soy product, nutritious and eco-friendly",
+                        co2: 1.1,
+                        category: "Grains",
+                      ),
+                      Alternative(
+                        name: "Seitan",
+                        justification: "Wheat gluten-based protein alternative",
+                        co2: 1.0,
+                        category: "Proteins",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Dairy",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Seafood",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Sweets",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Beverages",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Snacks",
+                      ),
+                      Alternative(
+                        name: "Mushrooms",
+                        justification: "Rich in nutrients and low in emissions",
+                        co2: 0.8,
+                        category: "Other",
+                      ),
+                    ]);
+
+                    // final result = await ApiService.fetchAlternatives(context, foodItems);
+                    // print("Result: ");
+                    // print(result);
+                    // if (result != null) {
+                    //   for (String item in foodItems) {
+                    //     altProvider.setAlternativesForFood(item, result[item] ?? []);
+                    //   }
 
                       Navigator.of(context).pop(); // Close loading screen
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const AlternativesScreen(),
                       ));
-                    } else {
-                      Navigator.of(context).pop(); // Close loading screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Failed to fetch alternatives")),
-                      );
-                    }
+                    // } else {
+                    //   Navigator.of(context).pop(); // Close loading screen
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text("Failed to fetch alternatives")),
+                    //   );
+                    // }
                     // altProvider.setAlternativesForFood("Chicken", [
                     //   Alternative(
                     //     name: "Tofu",
@@ -284,7 +433,13 @@ class _ItemsScreenState extends State<ItemsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.receipt),
-            title: const Text('Generate Recipe'),
+            title: const Text(
+              'Generate Recipe',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
             onTap: () async {
               Navigator.pop(context);
               await Navigator.of(context).push(MaterialPageRoute(

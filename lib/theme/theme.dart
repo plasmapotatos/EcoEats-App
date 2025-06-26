@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class EcoEatsTheme {
-  static const Color selectedBackground = Colors.blueAccent; // Consistent blue
+  static const Color selectedBackground = Color(0xFF4F8742); // Consistent blue
   static const Color unselectedBackground = Color(0xFFE0E0E0);
   static const Color selectedText = Colors.white;
   static const Color unselectedText = Colors.black;
