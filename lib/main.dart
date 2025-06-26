@@ -1,5 +1,6 @@
 import 'package:EcoEats/providers/alternatives_provider.dart';
 import 'package:EcoEats/providers/food_item_provider.dart';
+import 'package:EcoEats/providers/recipe_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:EcoEats/screens/home_screen.dart'; // Or your start screen
 import 'package:EcoEats/screens/splash_screen.dart';
@@ -11,6 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => FoodItemProvider()),
         ChangeNotifierProvider(create: (_) => AlternativesProvider()),
+        ChangeNotifierProvider(create: (_) => RecipeProvider()),
       ],
       child: const EcoEatsApp(),
     ),

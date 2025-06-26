@@ -1,20 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:EcoEats/widgets/touch_up_modal.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/recipe_provider.dart';
 
 class RecipeScreen extends StatelessWidget {
-  final String dishName;
-  final List<String> ingredients;
-  final List<String> steps;
-  final String base64Image;
-
-  const RecipeScreen({
-    super.key,
-    required this.dishName,
-    required this.ingredients,
-    required this.steps,
-    required this.base64Image,
-  });
+  const RecipeScreen({super.key});
 
   void _showTouchUpModal(BuildContext context) {
     showModalBottomSheet(
@@ -37,7 +29,18 @@ class RecipeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final decodedImage = base64Image == "" ? null : base64Decode(base64Image);
+    final recipe = context.watch<RecipeProvider>().recipe;
+
+    if (recipe == null) {
+      return const Scaffold(
+        body: Center(child: Text("No recipe available.")),
+      );
+    }
+
+    final decodedImage = recipe.imageBase64.isEmpty
+        ? null
+        : base64Decode(recipe.imageBase64);
+
     final Color orange = const Color(0xFFF7931E);
     final Color darkGreen = const Color(0xFF2E5623);
 
@@ -49,11 +52,7 @@ class RecipeScreen extends StatelessWidget {
         centerTitle: true,
         title: const Text(
           "Generated Recipe",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 30),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -68,13 +67,13 @@ class RecipeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top row: Dish name + edit button
+              // Top row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
-                      dishName,
+                      recipe.title,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -98,7 +97,7 @@ class RecipeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // 🟢 Image inside green container
+              // Image
               Container(
                 decoration: BoxDecoration(
                   color: darkGreen,
@@ -107,29 +106,19 @@ class RecipeScreen extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: decodedImage != null
-                      ? Image.memory(
-                    decodedImage,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
+                      ? Image.memory(decodedImage, height: 200, width: double.infinity, fit: BoxFit.cover)
                       : Container(
                     height: 200,
                     width: double.infinity,
                     color: Colors.grey.shade300,
-                    child: const Center(
-                      child: Text(
-                        'No Image Available',
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                    ),
+                    child: const Center(child: Text('No Image Available', style: TextStyle(color: Colors.black54))),
                   ),
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              // 🟠 Ingredients box (white)
+              // Ingredients
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -139,12 +128,9 @@ class RecipeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Ingredients",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen),
-                    ),
+                    Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen)),
                     const SizedBox(height: 8),
-                    ...ingredients.map((item) => Padding(
+                    ...recipe.ingredients.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,7 +146,7 @@ class RecipeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // 🟠 Steps box (white)
+              // Steps
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -170,17 +156,11 @@ class RecipeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Steps",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen),
-                    ),
+                    Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen)),
                     const SizedBox(height: 8),
-                    ...steps.asMap().entries.map((entry) => Padding(
+                    ...recipe.steps.asMap().entries.map((entry) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        "${entry.key + 1}. ${entry.value}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      child: Text("${entry.key + 1}. ${entry.value}", style: const TextStyle(fontSize: 16)),
                     )),
                   ],
                 ),

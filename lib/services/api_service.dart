@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:EcoEats/utils/dialog_utils.dart';
 
+import '../models/recipe.dart';
 import '../providers/alternatives_provider.dart';
 
 class ApiService {
@@ -49,5 +50,32 @@ class ApiService {
       return null;
     }
   }
+  static Future<Recipe?> generateRecipe(
+      BuildContext context, {
+        required String ingredientsText,
+        String? preferences,
+        Recipe? previousRecipe,
+      }) async {
+    try {
+      final payload = {
+        "ingredients_text": ingredientsText,
+        if (preferences != null) "preferences": preferences,
+        if (previousRecipe != null) "previous_recipe": previousRecipe.toJson(),
+      };
 
+      final response = await sendPostRequest(
+        context,
+        Uri.parse('http://localhost:5001/generate_recipe'),
+        payload,
+      );
+
+      if (response == null || response.statusCode != 200) return null;
+
+      final data = jsonDecode(response.body);
+      return Recipe.fromJson(data);
+    } catch (e) {
+      DialogUtils.showErrorDialog(context, "Failed to generate recipe: $e");
+      return null;
+    }
+  }
 }
