@@ -55,7 +55,7 @@ class FoodGroupSlider extends StatelessWidget {
                     group,
                     style: TextStyle(
                       fontSize: 12,
-                      color: selected == group ? EcoEatsTheme.selectedBackground : EcoEatsTheme.unselectedText,
+                      color: selected == group ? EcoEatsTheme.selectedBackground : Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),

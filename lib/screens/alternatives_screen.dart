@@ -1,3 +1,4 @@
+import 'package:EcoEats/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:EcoEats/providers/food_item_provider.dart';
@@ -30,9 +31,6 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
   int selectedFoodIndex = 0;
   String? selectedGroup;
 
-  final Color orange = const Color(0xFFF7931E);
-  final Color darkGreen = const Color(0xFF2E5623);
-
   @override
   Widget build(BuildContext context) {
     final foodProvider = context.read<FoodItemProvider>();
@@ -50,7 +48,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
         : altProvider.getByGroup(currentFood, group);
 
     return Scaffold(
-      backgroundColor: orange,
+      backgroundColor: EcoEatsTheme.primaryBackground,
       appBar: AppBar(
         title: const Text(
           "Alternatives",
@@ -59,7 +57,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
             fontSize: 30,
           ),
         ),
-        backgroundColor: orange,
+        backgroundColor: EcoEatsTheme.primaryBackground,
         elevation: 0,
         foregroundColor: Colors.white,
       ),
@@ -91,7 +89,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: isSelected ? darkGreen : Colors.white,
+                        color: isSelected ? EcoEatsTheme.secondaryBackground : Colors.white,
                       ),
                       child: Center(
                         child: Text(
@@ -115,7 +113,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
               groups: groups,
               selected: group,
               onSelect: (g) => setState(() => selectedGroup = g),
-              backgroundColor: darkGreen,
+              backgroundColor: EcoEatsTheme.secondaryBackground,
               selectedColor: Colors.white,
               textColor: Colors.white,
             ),
@@ -126,7 +124,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
               child: Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: darkGreen,
+                  color: EcoEatsTheme.secondaryBackground,
                   borderRadius: BorderRadius.circular(36),
                 ),
                 child: ListView.builder(
@@ -166,13 +164,13 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: darkGreen.withOpacity(0.1),
+                                        color: EcoEatsTheme.secondaryBackground.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        alt.group,
+                                        alt.category,
                                         style: TextStyle(
-                                          color: darkGreen,
+                                          color: EcoEatsTheme.secondaryBackground,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 12,
                                         ),
@@ -185,7 +183,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
                               // Plus icon on the right
                               IconButton(
                                 icon: const Icon(Icons.add_circle_outline),
-                                color: darkGreen,
+                                color: EcoEatsTheme.secondaryBackground,
                                 tooltip: 'Add',
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -199,7 +197,7 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
 
                           // Description line
                           Text(
-                            alt.description ?? "Rich in nutrients and low in emissions",
+                            alt.justification ?? "Rich in nutrients and low in emissions",
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.black87,
@@ -212,12 +210,35 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
                             children: [
                               const Icon(Icons.eco, size: 16, color: Colors.green),
                               const SizedBox(width: 6),
-                              Text(
-                                "${alt.co2.toStringAsFixed(2)} kg CO₂-eq/kg",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: darkGreen,
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("What is kg CO₂-eq/kg?"),
+                                      content: const Text(
+                                        "This measures the climate impact of producing 1 kg of the item, "
+                                            "expressed as the equivalent amount of CO₂ that would cause the same amount of global warming. "
+                                            "It includes emissions from all greenhouse gases like CO₂, CH₄ (methane), and N₂O (nitrous oxide), "
+                                            "converted to a common unit based on their 100-year global warming potential (GWP100).",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("Got it"),
+                                          onPressed: () => Navigator.of(context).pop(),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "${alt.co2.toStringAsFixed(2)} kg CO₂-eq/kg",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    color: EcoEatsTheme.secondaryBackground,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               ),
                             ],

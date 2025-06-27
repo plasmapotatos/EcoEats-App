@@ -1,4 +1,5 @@
 import 'package:EcoEats/screens/home_screen.dart';
+import 'package:EcoEats/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:EcoEats/providers/food_item_provider.dart';
@@ -45,7 +46,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
     final items = context.watch<FoodItemProvider>().items;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFF9E1B),
+      backgroundColor: EcoEatsTheme.primaryBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -65,7 +66,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
               child: Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2B511E),
+                  color: EcoEatsTheme.secondaryBackground,
                   borderRadius: BorderRadius.circular(32),
                 ),
                 child: Scrollbar(
@@ -80,7 +81,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: EcoEatsTheme.tertiaryBackground,
                           borderRadius: BorderRadius.circular(24),
                         ),
                         child: Row(
@@ -94,7 +95,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                                   .read<FoodItemProvider>()
                                   .removeItem(index),
                               child: const Icon(Icons.close,
-                                  color: Color(0xFF2B511E)),
+                                  color: EcoEatsTheme.secondaryBackground),
                             )
                           ],
                         ),
@@ -109,7 +110,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
               padding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: EcoEatsTheme.tertiaryBackground,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -118,7 +119,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                     child: TextField(
                       controller: _textController,
                       decoration: const InputDecoration(
-                        hintText: 'kale',
+                        hintText: 'Enter item here...',
                         border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _addItem(context),
@@ -127,7 +128,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   GestureDetector(
                     onTap: () => _addItem(context),
                     child: const Icon(Icons.add_circle,
-                        color: Color(0xFF2B511E)),
+                        color: EcoEatsTheme.secondaryBackground,
+                    )
                   )
                 ],
               ),
@@ -140,7 +142,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => const HomeScreen())),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2B511E),
+                    backgroundColor: EcoEatsTheme.secondaryBackground,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24)),
                     padding: const EdgeInsets.all(12),
@@ -150,7 +152,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 ElevatedButton(
                   onPressed: () => _showBottomSheet(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2B511E),
+                    backgroundColor: EcoEatsTheme.secondaryBackground,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24)),
                     padding: const EdgeInsets.symmetric(

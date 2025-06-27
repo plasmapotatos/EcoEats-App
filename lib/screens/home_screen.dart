@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(
                         builder: (_) => LoadingScreen(
                           message: "Analyzing image...",
-                          animationAsset: 'lib/assets/animations/generate_recipes.gif',
+                          animationAsset: 'lib/assets/animations/detect_foods.gif',
                           isGif: true,
                           onComplete: (context) async {
                             await CameraService.captureAndSendImage(context, _cameraController, image: image);

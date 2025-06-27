@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:EcoEats/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:EcoEats/widgets/touch_up_modal.dart';
 import 'package:provider/provider.dart';
@@ -67,11 +68,8 @@ class RecipeScreen extends StatelessWidget {
         ? null
         : base64Decode(recipe.imageBase64);
 
-    final Color orange = const Color(0xFFF7931E);
-    final Color darkGreen = const Color(0xFF2E5623);
-
     return Scaffold(
-      backgroundColor: orange,
+      backgroundColor: EcoEatsTheme.primaryBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -86,7 +84,7 @@ class RecipeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Container(
           decoration: BoxDecoration(
-            color: darkGreen,
+            color: EcoEatsTheme.secondaryBackground,
             borderRadius: BorderRadius.circular(32),
           ),
           padding: const EdgeInsets.all(20),
@@ -117,10 +115,10 @@ class RecipeScreen extends StatelessWidget {
                   // Touch Up Button
                   ElevatedButton.icon(
                     onPressed: () => _showTouchUpModal(context),
-                    icon: const Icon(Icons.edit_note, color: Colors.white),
-                    label: const Text("Touch Up", style: TextStyle(color: Colors.white)),
+                    icon: const Icon(Icons.edit_note, color: Colors.black),
+                    label: const Text("Touch Up", style: TextStyle(color: Colors.black)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white24,
+                      backgroundColor: EcoEatsTheme.tertiaryBackground,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
@@ -135,7 +133,7 @@ class RecipeScreen extends StatelessWidget {
               // Image
               Container(
                 decoration: BoxDecoration(
-                  color: darkGreen,
+                  color: EcoEatsTheme.secondaryBackground,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ClipRRect(
@@ -157,13 +155,13 @@ class RecipeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: EcoEatsTheme.tertiaryBackground,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen)),
+                    Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: EcoEatsTheme.secondaryBackground)),
                     const SizedBox(height: 8),
                     ...recipe.ingredients.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
@@ -185,13 +183,13 @@ class RecipeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: EcoEatsTheme.tertiaryBackground,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen)),
+                    Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: EcoEatsTheme.secondaryBackground)),
                     const SizedBox(height: 8),
                     ...recipe.steps.asMap().entries.map((entry) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
