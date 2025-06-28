@@ -43,9 +43,10 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
     final groups = ["All", for (final name in foodGroupOrder) if (baseGroups.contains(name)) name];
 
     final group = selectedGroup ?? "All";
-    final filteredAlts = group == "All"
+    final filteredAlts = (group == "All"
         ? altProvider.getAlternatives(currentFood)
-        : altProvider.getByGroup(currentFood, group);
+        : altProvider.getByGroup(currentFood, group))
+      ..sort((a, b) => a.co2.compareTo(b.co2));
 
     return Scaffold(
       backgroundColor: EcoEatsTheme.primaryBackground,
@@ -186,6 +187,9 @@ class _AlternativesScreenState extends State<AlternativesScreen> {
                                 color: EcoEatsTheme.secondaryBackground,
                                 tooltip: 'Add',
                                 onPressed: () {
+                                  final foodItemProvider = context.read<FoodItemProvider>();
+                                  foodItemProvider.addItem(alt.name);
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text('${alt.name} added!')),
                                   );
